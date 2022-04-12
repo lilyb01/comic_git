@@ -59,12 +59,12 @@ def str_to_list(s: str, delimiter: str=",") -> List[str]:
     return [item.strip(" ") for item in s.strip(delimiter + " ").split(delimiter)]
 
 
-def find_project_root():
-    while not os.path.exists("your_content"):
+def find_project_root(content):
+    while not os.path.exists(content):
         last_cwd = os.getcwd()
         os.chdir("..")
         if os.getcwd() == last_cwd:
-            raise FileNotFoundError("Couldn't find a folder in the path matching 'your_content'. Make sure you're "
+            raise FileNotFoundError("Couldn't find a folder in the path matching 'content'. Make sure you're "
                                     "running this script from within the comic_git repository.")
 
 

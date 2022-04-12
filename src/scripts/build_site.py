@@ -45,7 +45,7 @@ def delete_output_file_space(comic_info: RawConfigParser = None):
     if os.path.isfile("feed.xml"):
         os.remove("feed.xml")
     if comic_info is None:
-        comic_info = read_info("your_content/comic_info.ini")
+        comic_info = read_info("comic_info.ini")
     for page in get_pages_list(comic_info):
         if page["template_name"] == "index":
             if os.path.exists("index.html"):
@@ -129,12 +129,12 @@ def run_hook(theme: str, func: str, args: List[Any]) -> Any:
     :param args: Args list to pass to the function
     :return: The return value of the function called, if one was found. Otherwise, None.
     """
-    if os.path.exists(f"your_content/themes/{theme}/scripts/hooks.py"):
+    if os.path.exists(f"{CONTENT_DIR}/themes/{theme}/scripts/hooks.py"):
         current_path = os.path.abspath(".")
         if current_path not in sys.path:
             sys.path.append(current_path)
             print(f"Path updated: {sys.path}")
-        hooks = import_module(f"your_content.themes.{theme}.scripts.hooks")
+        hooks = import_module(f"{CONTENT_DIR}.themes.{theme}.scripts.hooks")
         if hasattr(hooks, func):
             method = getattr(hooks, func)
             return method(*args)
@@ -162,8 +162,8 @@ def build_and_publish_comic_pages(comic_url: str, comic_folder: str, comic_info:
     processing_times.append((f"Process comic images in '{comic_folder}'", time()))
 
     # Load home page text
-    if os.path.isfile(f"your_content/{comic_folder}home page.txt"):
-        with open(f"your_content/{comic_folder}home page.txt") as f:
+    if os.path.isfile(f"{CONTENT_DIR}/{comic_folder}home page.txt"):
+        with open(f"{CONTENT_DIR}/{comic_folder}home page.txt") as f:
             home_page_text = f.read()
     else:
         home_page_text = ""
@@ -177,13 +177,13 @@ def build_and_publish_comic_pages(comic_url: str, comic_folder: str, comic_info:
         "comic_author": comic_info.get("Comic Info", "Author"),
         "comic_description": comic_info.get("Comic Info", "Description"),
         "banner_image": web_path(
-            get_option(comic_info, "Comic Settings", "Banner image", default="/your_content/images/banner.png")
+            get_option(comic_info, "Comic Settings", "Banner image", default=f"/{CONTENT_DIR}/images/banner.png")
         ),
         "theme": get_option(comic_info, "Comic Settings", "Theme", default="default"),
         "comic_url": comic_url,
         "base_dir": BASE_DIRECTORY,
         "comic_base_dir": f"{BASE_DIRECTORY}/{comic_folder}".rstrip("/"),  # e.g. /base_dir/extra_comic
-        "content_base_dir": f"{BASE_DIRECTORY}/your_content/{comic_folder}".rstrip("/"),  # e.g. /base_dir/your_content/extra_comic
+        "content_base_dir": f"{BASE_DIRECTORY}/{CONTENT_DIR}/{comic_folder}".rstrip("/"),  # e.g. /base_dir/content/extra_comic
         "links": get_links_list(comic_info),
         "use_images_in_navigation_bar": comic_info.getboolean("Comic Settings", "Use images in navigation bar"),
         "use_thumbnails": comic_info.getboolean("Archive", "Use thumbnails"),
@@ -217,7 +217,7 @@ def get_page_info_list(comic_folder: str, comic_info: RawConfigParser, delete_sc
         comic_info, "Comic Settings", "Auto-detect comic images", option_type=bool, default=False
     )
     theme = get_option(comic_info, "Comic Settings", "Theme", default="default")
-    for page_path in glob(f"your_content/{comic_folder}comics/*/"):
+    for page_path in glob(f"{CONTENT_DIR}/{comic_folder}comics/*/"):
         filepath = f"{page_path}info.ini"
         if not os.path.exists(f"{page_path}info.ini"):
             print(f"{page_path} is missing its info.ini file. Skipping")
@@ -291,7 +291,7 @@ def get_transcripts(comic_folder: str, comic_info: RawConfigParser, page_name: s
         return OrderedDict()
     transcripts = OrderedDict()
     if get_option(comic_info, "Transcripts", "Load transcripts from comic folder", option_type=bool, default=True):
-        load_transcripts_from_folder(transcripts, f"your_content/{comic_folder}comics", page_name)
+        load_transcripts_from_folder(transcripts, f"{CONTENT_DIR}/{comic_folder}comics", page_name)
     transcripts_dir = get_option(comic_info, "Transcripts", "Transcripts folder", default=f"")
     if transcripts_dir:
         load_transcripts_from_folder(transcripts, transcripts_dir, page_name)
@@ -313,16 +313,16 @@ def load_transcripts_from_folder(transcripts: OrderedDict, transcripts_dir: str,
 def create_comic_data(comic_folder: str, comic_info: RawConfigParser, page_info: dict,
                       first_id: str, previous_id: str, current_id: str, next_id: str, last_id: str):
     print("Building page {}...".format(page_info["page_name"]))
-    page_dir = f"your_content/{comic_folder}comics/{page_info['page_name']}/"
+    page_dir = f"{CONTENT_DIR}/{comic_folder}comics/{page_info['page_name']}/"
     archive_post_date = strftime(comic_info.get("Archive", "Date format"),
                                  strptime(page_info["Post date"], comic_info.get("Comic Settings", "Date format")))
     post_html = []
     post_text_paths = [
-        f"your_content/{comic_folder}before post text.txt",
-        f"your_content/{comic_folder}before post text.html",
+        f"{CONTENT_DIR}/{comic_folder}before post text.txt",
+        f"{CONTENT_DIR}/{comic_folder}before post text.html",
         page_dir + "post.txt",
-        f"your_content/{comic_folder}after post text.txt",
-        f"your_content/{comic_folder}after post text.html",
+        f"{CONTENT_DIR}/{comic_folder}after post text.txt",
+        f"{CONTENT_DIR}/{comic_folder}after post text.html",
     ]
     for post_text_path in post_text_paths:
         if os.path.exists(post_text_path):
@@ -448,7 +448,7 @@ def write_html_files(comic_folder: str, comic_info: RawConfigParser, comic_data_
     template_folders = ["src/templates"]
     theme = get_option(comic_info, "Comic Settings", "Theme", default="default")
     if theme:
-        template_folders.insert(0, f"your_content/themes/{theme}/templates")
+        template_folders.insert(0, f"{CONTENT_DIR}/themes/{theme}/templates")
     print(f"Template folders: {template_folders}")
     utils.jinja_environment = Environment(loader=FileSystemLoader(template_folders))
     # Write individual comic pages
@@ -510,11 +510,11 @@ def get_extra_comic_info(folder_name: str, comic_info: RawConfigParser):
     del comic_info["Pages"]
     # Delete "Links Bar" from original if the extra comic's info has that section defined
     extra_comic_info = RawConfigParser()
-    extra_comic_info.read(f"your_content/{folder_name}/comic_info.ini")
+    extra_comic_info.read(f"{CONTENT_DIR}/{folder_name}/comic_info.ini")
     if extra_comic_info.has_section("Links Bar"):
         del comic_info["Links Bar"]
     # Read the extra comic info in again, to merge with the original comic info
-    comic_info.read(f"your_content/{folder_name}/comic_info.ini")
+    comic_info.read(f"{CONTENT_DIR}/{folder_name}/comic_info.ini")
     return comic_info
 
 
@@ -530,13 +530,15 @@ def print_processing_times(processing_times: List[Tuple[str, float]]):
 
 def main(delete_scheduled_posts=False, publish_all_comics=False):
     global BASE_DIRECTORY
+    global CONTENT_DIR
     processing_times = [("Start", time())]
 
     # Get site-wide settings for this comic
-    utils.find_project_root()
-    comic_info = read_info("your_content/comic_info.ini")
+    comic_info = read_info("comic_info.ini")
     comic_url, BASE_DIRECTORY = utils.get_comic_url(comic_info)
     theme = get_option(comic_info, "Comic Settings", "Theme", default="default")
+    CONTENT_DIR = get_option(comic_info, "Comic Settings", "Content folder", default="content")
+    utils.find_project_root(CONTENT_DIR)
 
     processing_times.append(("Get comic settings", time()))
 

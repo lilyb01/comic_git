@@ -70,7 +70,7 @@ for child in channel.iter('item'):
     # else:
     #     print(f"Bad post type {post_type} for {child.find('title').text}")
 
-# for f in glob.glob("../../your_content/comics/*"):
+# for f in glob.glob("../../content/comics/*"):
 #     shutil.rmtree(f)
 
 for name, page in pages.items():
@@ -82,7 +82,7 @@ for name, page in pages.items():
                 print(page)
                 break
         else:
-            dir_name = f"../../your_content/comics/{name}"
+            dir_name = f"../../content/comics/{name}"
             os.makedirs(dir_name, exist_ok=True)
             page_filename = os.path.basename(page["page_link"])
             page_filepath = dir_name + "/" + page_filename
@@ -105,7 +105,7 @@ Tags = """.encode("utf-8"))
 
 
 print("")
-folders = glob.glob("../../your_content/comics/*")
+folders = glob.glob("../../content/comics/*")
 for i in range(1, 219):
-    if f"../../your_content/comics\\page-{i}" not in folders:
+    if f"../../content/comics\\page-{i}" not in folders:
         print(f"Missing page-{i}")

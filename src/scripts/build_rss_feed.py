@@ -12,7 +12,6 @@ from utils import get_comic_url
 
 cdata_dict = {}
 
-
 def add_base_tags_to_channel(channel, comic_url, comic_info):
     atom_link = ElementTree.SubElement(channel, "{http://www.w3.org/2005/Atom}link")
     atom_link.set("href", urljoin(comic_url, "feed.xml"))
@@ -63,7 +62,7 @@ def add_item(xml_parent, comic_data, comic_url, comic_info):
             e = ElementTree.SubElement(item, "category")
             e.attrib["type"] = "tag"
             e.text = tag
-    comic_image_url = urljoin(comic_url, "your_content/comics/{}/{}".format(post_id, comic_data["filename"]))
+    comic_image_url = urljoin(comic_url, "{}/comics/{}/{}".format(CONTENT_DIR, post_id, comic_data["filename"]))
     html = build_rss_post(comic_image_url, comic_data.get("alt_text"), comic_data["post_html"])
     cdata_dict["post_id_" + post_id] = "<![CDATA[{}]]>".format(html)
     ElementTree.SubElement(item, "description").text = "{post_id_" + post_id + "}"
@@ -89,6 +88,7 @@ def pretty_xml(element):
 
 
 def build_rss_feed(comic_info: RawConfigParser, comic_data_dicts: List[Dict]):
+    CONTENT_DIR = comic_info.get("Comic Settings", "Content folder")
     global cdata_dict
 
     if not comic_info.getboolean("RSS Feed", "Build RSS feed"):

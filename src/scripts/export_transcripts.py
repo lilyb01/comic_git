@@ -43,7 +43,7 @@ TRANSCRIPT_POST_TYPE = "webcomic_transcript"
 #             print(page)
 #             break
 #     else:
-#         dir_name = f"../../your_content/transcripts/{page['page_name']}"
+#         dir_name = f"../../content/transcripts/{page['page_name']}"
 #         os.makedirs(dir_name, exist_ok=True)
 #         for lang, tscript in page["transcripts"].items():
 #             # if lang == "English":
@@ -65,8 +65,8 @@ TRANSCRIPT_POST_TYPE = "webcomic_transcript"
 #                 f.write(tscript.encode("utf-8"))
 
 print("")
-folders = glob.glob("../../your_content/transcripts/*")
+folders = glob.glob("../../content/transcripts/*")
 # print(folders)
 for i in range(1, 219):
-    if f"../../your_content/transcripts\\page-{i}" not in folders:
+    if f"../../content/transcripts\\page-{i}" not in folders:
         print(f"Missing page-{i}")

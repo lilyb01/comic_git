@@ -6,7 +6,7 @@ from utils import find_project_root, str_to_list
 
 
 def get_requirements(theme: str) -> Set[str]:
-    requirements_path = f"your_content/themes/{theme}/scripts/requirements.txt"
+    requirements_path = f"{CONTENT_DIR}/themes/{theme}/scripts/requirements.txt"
     if os.path.exists(requirements_path):
         with open(requirements_path) as f:
             return set(str_to_list(f.read().replace("\r", ""), delimiter="\n"))
@@ -15,8 +15,9 @@ def get_requirements(theme: str) -> Set[str]:
 
 def main():
     find_project_root()
-    comic_info = read_info("your_content/comic_info.ini")
+    comic_info = read_info("comic_info.ini")
     theme = get_option(comic_info, "Comic Settings", "Theme", default="default")
+    CONTENT_DIR = get_option(comic_info, "Comic Settings", "Content folder", default="content")
     requirements = get_requirements(theme)
     print(requirements)
     # Build any extra comics that may be needed
